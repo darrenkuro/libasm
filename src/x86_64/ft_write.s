@@ -10,9 +10,9 @@ ft_write:			; rdi, rsi, rdx for parameters
 	ret
 
 errno:
-	neg		rax					; get the positive errno, how it is defined
-	push	rax					; push & pop are stack ops for temp data, do not use register, implicitly QWORD
-	call	__errno_location	; external func to get errno addr to rax
-	pop		QWORD [rax]			; pop the QWORD (8 bytes) to where rax is pointing to
-	mov		rax, -1				; reset to -1
+	neg		rax				; get the positive errno, how it is defined
+	push	rax				; push & pop are stack ops for temp data, do not use register, implicitly QWORD
+	call	__errno_location; external func to get errno addr to rax
+	pop		QWORD [rax]		; pop the QWORD (8 bytes) to where rax is pointing to
+	mov		rax, -1			; reset to -1
 	ret
