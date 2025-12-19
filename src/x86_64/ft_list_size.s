@@ -1,27 +1,16 @@
 section .text
 global  ft_list_size
 
-ft_list_size:        ; rdi *begin
-    xor     rax, rax ; size
+ft_list_size:           ; rdi *begin
+    xor rax, rax        ; size
+
 .loop:
-    test    rdi, rdi        ; if (begin / rdi == NULL)
-    jz      .ret
-    add     rax, 1          ; better than inc, sets CF
-    mov     rdi, [rdi + 8]  ; begin = begin->next
-                            ; rdi: data, rdi + 8: next
-    jmp     .loop
+	test rdi, rdi       ; if (begin / rdi == NULL)
+	jz   .ret
+	add  rax, 1         ; better than inc, sets CF
+	mov  rdi, [rdi + 8] ; begin = begin->next
+	                    ; rdi: data, rdi + 8: next
+	jmp  .loop
+
 .ret:
-    ret
-
-; int	ft_list_size(t_list *begin_list)
-; {
-; 	int	count;
-
-;   count = 0;
-; 	while (begin_list)
-; 	{
-; 		begin_list = begin_list->next;
-; 		++count;
-; 	}
-; 	return (count);
-; }
+	ret
