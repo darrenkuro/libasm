@@ -41,19 +41,18 @@ Libasm is a small library written entirely in assembly, re-implementing a subset
 
 - Caller-saved registers: **%rax, %rdi, %rsi, %rdx, %rcx, %rsp, %r8-11**. (The caller must save them before calling another function if it cares about their values.)
 - Callee-saved registers: **%rbx, %rbp, %r12-15**. (The callee must save their values on entry and restore them before returning if it wants to use them.)
-
-| | QWORD | DWORD | WORD | BYTE |
-| | 64 bit | 32 bit | 16 bit | 8 bit |
-| ----------------------- | ------ | ------ | ------ | ----- |
-| A (accumulator) | `RAX` | `EAX` | `AX` | `AL` |
-| B (base, addressing) | `RBX` | `EBX` | `BX` | `BL` |
-| C (counter, iterations) | `RCX` | `ECX` | `CX` | `CL` |
-| D (data) | `RDX` | `EDX` | `DX` | `DL` |
-| | `RDI` | `EDI` | `DI` | `DIL` |
-| | `RSI` | `ESI` | `SI` | `SIL` |
-| Numbered (n=8..15) | `Rn` | `RnD` | `RnW` | `RnB` |
-| Stack pointer | `RSP` | `ESP` | `SP` | `SPL` |
-| Frame pointer | `RBP` | `EBP` | `BP` | `BPL` |
+  | | 64 bit | 32 bit | 16 bit | 8 bit |
+  | ----------------------- | ------ | ------ | ------ | ----- |
+  | | QWORD | DWORD | WORD | BYTE |
+  | A (accumulator) | `RAX` | `EAX` | `AX` | `AL` |
+  | B (base, addressing) | `RBX` | `EBX` | `BX` | `BL` |
+  | C (counter, iterations) | `RCX` | `ECX` | `CX` | `CL` |
+  | D (data) | `RDX` | `EDX` | `DX` | `DL` |
+  | | `RDI` | `EDI` | `DI` | `DIL` |
+  | | `RSI` | `ESI` | `SI` | `SIL` |
+  | Numbered (n=8..15) | `Rn` | `RnD` | `RnW` | `RnB` |
+  | Stack pointer | `RSP` | `ESP` | `SP` | `SPL` |
+  | Frame pointer | `RBP` | `EBP` | `BP` | `BPL` |
 
 ---
 
