@@ -2,18 +2,13 @@ section .text
 global ft_strcpy
 
 ft_strcpy:
-	xor		rax, rax
-	push	rdi
+    mov     rax, rdi  ; return dest
 
-copy:
-	mov		al, byte [rsi]
-	mov		byte [rdi], al
-	cmp		al, 0
-	je		return
-	inc		rsi
-	inc		rdi
-	jmp		copy
-
-return:
-	pop		rax
-	ret
+.copy:
+	mov		dl, [rsi] ; BYTE implied
+	mov		[rdi], dl ; BYTE implied
+	add		rsi, 1    ; src++
+	add		rdi, 1    ; dest++
+    test    dl, dl    ; 0?
+	jnz		.copy
+    ret
