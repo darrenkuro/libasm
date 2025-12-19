@@ -20,5 +20,5 @@ ft_strdup:
 
 .fail:
 	pop rdi       ; restore saved argument
-	xor rax, rax
+	xor rax, rax  ; return 0 (null)
 	ret

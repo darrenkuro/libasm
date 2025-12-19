@@ -15,5 +15,5 @@ ft_strcmp:
 	jmp   .cmp
 
 .done:
-	sub eax, ecx          ; return difference
+	sub   eax, ecx        ; return difference
 	ret
