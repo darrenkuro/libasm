@@ -54,6 +54,8 @@ Libasm is a small library written entirely in assembly, re-implementing a subset
   | Stack pointer | `RSP` | `ESP` | `SP` | `SPL` |
   | Frame pointer | `RBP` | `EBP` | `BP` | `BPL` |
 
+- QWORD: mostly addr & pointer, size_t, ssize_t; DWORD: int, unsigned int, errno, syscall number; BYTE: char; WORD: short (rare)
+
 #### Instructions
 
 - [ reg ] means reading data on reg as an address
