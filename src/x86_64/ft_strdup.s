@@ -10,7 +10,7 @@ ft_strdup:
     add     rax, 1    ; +1 for null terminator
 	mov		rdi, rax  ; rdi = size
 	call	malloc
-    test    rax, rax  ; malloc failed?
+    test    rax, rax  ; malloc returned null?
 	jz		.fail
 	mov		rdi, rax  ; dest = allocated buffer
 	pop		rsi       ; src = original str
