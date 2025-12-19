@@ -54,6 +54,32 @@ Libasm is a small library written entirely in assembly, re-implementing a subset
   | Stack pointer | `RSP` | `ESP` | `SP` | `SPL` |
   | Frame pointer | `RBP` | `EBP` | `BP` | `BPL` |
 
+#### Instructions
+
+- [ reg ] means reading data on reg as an address
+
+```asm
+xor  rax, rax     ; clear rax
+mov  rax, rdi     ; rax = rdi
+mov  rax, [rdi]   ; rax = *rdi
+mov  [rsp], rax   ; *rsp = rax
+
+lea  rax, [rdi+8] ; rax = rdi + 8, load addr, does not touch memory
+
+add  rax, 1       ; preferred over inc/dec! (flag reasons)
+sub  rsp, 16
+imul rax, rdi     ; rax *= rdi
+cqo               ; sign-extend rax → rdx
+idiv rdi          ; rax = rax / rdi, rdx = remainder
+
+test rdi, rdi     ; is rdi == 0?
+jz   label        ; je, jz (equal, zero) vs jne, jnz
+```
+
+#### Flags
+
+- ZF (zero), SF (sign), CF (carry), OF (overflow)
+
 ---
 
 ## 📄 License
