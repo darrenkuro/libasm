@@ -72,8 +72,13 @@ imul rax, rdi     ; rax *= rdi
 cqo               ; sign-extend rax → rdx
 idiv rdi          ; rax = rax / rdi, rdx = remainder
 
-test rdi, rdi     ; is rdi == 0?
-jz   label        ; je, jz (equal, zero) vs jne, jnz
+test rdi, rdi     ; rdi & rdi; is rdi == 0?
+cmp  rdi, rax     ; rdi - rax
+jz   label        ; = je (equal, zero), ZF
+jnz  label        ; = jne (not equal, not zero), !ZF
+js   label        ; if negative, SF; vs. jns (if not neg)
+jg/jge; jl/jle    ; >, >=; <, <=
+
 ```
 
 #### Flags
