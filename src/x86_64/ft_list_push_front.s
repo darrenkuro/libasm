@@ -2,24 +2,32 @@ section .text
 global ft_list_push_front
 extern malloc
 
-; t_list	*ft_create_elem(void *data)
-; {
-; 	t_list	*elem;
+; void ft_list_push_front(t_list **begin_list, void *data)
+ft_list_push_front:        ; rdi = begin_list, rsi = data
+    test    rdi, rdi       ; if (!begin_list)
+    jz      .ret
 
-; 	elem = malloc(sizeof(t_list));
-;     if (!elem)
-;         return (NULL);
-; 	elem->data = data;
-; 	elem->next = NULL;
-; 	return (elem);
-; }
-; void	ft_list_push_front(t_list **begin_list, void *data)
-; {
-;     t_list	*node;
+    push    rdi            ; save begin_list
+    push    rsi            ; save data
 
-;     if (!begin_list)
-;         return ;
-; 	node = ft_create_elem(data);
-; 	node->next = *begin_list;
-; 	*begin_list = node;
-; }
+    mov     edi, 16        ; malloc(sizeof(t_list)) → malloc(16)
+    call    malloc
+    test    rax, rax
+    jz      .fail          ; malloc failed
+
+    pop     rsi            ; restore data
+    pop     rdi            ; restore begin_list
+
+    mov     [rax], rsi     ; node->data = data
+
+    mov     rcx, [rdi]
+    mov     [rax + 8], rcx ; node->next = *begin_list
+
+    mov     [rdi], rax     ; *begin_list = node
+
+.ret:
+    ret
+
+.fail:
+    add     rsp, 16      ; clean stack on malloc failure
+    ret
