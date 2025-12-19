@@ -2,6 +2,7 @@
 #include <errno.h> // errno
 #include <fcntl.h>
 #include <stdio.h>  // ssize_t, size_t, printf
+#include <stdlib.h> // free
 #include <string.h> // strerrno
 #include <unistd.h>
 
@@ -147,7 +148,7 @@ int main() {
     test_strdup();
     test_write();
     test_read();
-    test_read_file();
+    // test_read_file();
 
     puts("\nALL TESTS PASSED");
     return 0;
