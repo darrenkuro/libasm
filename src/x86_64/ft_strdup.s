@@ -5,18 +5,19 @@ extern	ft_strcpy
 extern	malloc
 
 ft_strdup:
-	push	rdi
-	call	ft_strlen
-	inc		rax			; add null character space
-	mov		rdi, rax
+	push	rdi       ; save *s
+	call	ft_strlen ; rax = strlen(s)
+    add     rax, 1    ; +1 for null terminator
+	mov		rdi, rax  ; rdi = size
 	call	malloc
-	cmp		rax, 0
-	je		fail
-	mov		rdi, rax
-	pop		rsi
+    test    rax, rax  ; malloc failed?
+	jz		.fail
+	mov		rdi, rax  ; dest = allocated buffer
+	pop		rsi       ; src = original str
 	call	ft_strcpy
 	ret
 
-fail:
-	mov		rax, 0
+.fail:
+    pop     rdi       ; restore saved argument
+	xor     rax, rax
 	ret
