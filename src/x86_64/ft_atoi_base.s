@@ -1,3 +1,5 @@
+; int ft_atoi_base(char *str, char *base)
+
 	; int validate_base(char *base)
 	; {
 	; char checked[255]

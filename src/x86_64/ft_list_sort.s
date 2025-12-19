@@ -1,3 +1,6 @@
+; void ft_list_sort(t_list **begin_list, int (*cmp)())
+; (*cmp)(list_ptr->data, list_other_ptr->data)
+
 	; void ft_list_sort(t_list **begin_list, int (*cmp)())
 	; {
 	; t_list *curr

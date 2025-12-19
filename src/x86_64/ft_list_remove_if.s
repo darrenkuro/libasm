@@ -2,9 +2,11 @@ section .text
 global  ft_list_remove_if
 extern  free
 
-	;    void ft_list_remove_if(t_list **begin_list, void *data_ref, int (*cmp)()
-	;    void (*free_fct)(void *))
-	ft_list_remove_if:       ; rdi = begin_list, rsi = data_ref, rdx = cmp, rcx = free_fct
+
+; void ft_list_remove_if(t_list **begin_list, void *data_ref, int (*cmp)(), void (*free_fct)(void *))
+; (*cmp)(list_ptr->data, data_ref);
+; (*free_fct)(list_ptr->data);
+ft_list_remove_if:       ; rdi = begin_list, rsi = data_ref, rdx = cmp, rcx = free_fct
 	test rdi, rdi; if (!begin_list) return
 	jz   .ret
 	mov  r8, [rdi]; if (!*begin_list) return

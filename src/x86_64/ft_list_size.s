@@ -1,8 +1,9 @@
 section .text
 global  ft_list_size
 
+; int ft_list_size(t_list *begin_list)
 ft_list_size:           ; rdi *begin
-    xor rax, rax        ; size
+	xor rax, rax        ; size
 
 .loop:
 	test rdi, rdi       ; if (begin / rdi == NULL)
