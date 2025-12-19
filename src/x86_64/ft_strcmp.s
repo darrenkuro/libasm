@@ -1,6 +1,7 @@
 section .text
 global  ft_strcmp
 
+; int ft_strcmp(char const *_Nonnull s1, char const *_Nonnull s2)
 ft_strcmp:
 .cmp:
 	movzx eax, BYTE [rdi] ; eax = (unsigned char)*s1

@@ -2,6 +2,7 @@ section .text
 global  ft_write          ; Export the symbol so C code can link to it
 extern  __errno_location
 
+; ssize_t ft_write(int fd, void const *buf, size_t count)
 ft_write:                 ; rdi, rsi, rdx for parameters
 	mov  eax, 1           ; eax is the smallest encoding with gurantee safety
 	syscall               ; 1 - write syscall
