@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <errno.h> // errno
 #include <fcntl.h>
-#include <stdio.h>  // ssize_t, size_t, printf
+#include <stdio.h>  // ssize_t, size_t, printf, puts
 #include <stdlib.h> // free
 #include <string.h> // strerrno
 #include <unistd.h>
@@ -18,17 +18,21 @@ char *ft_strdup(char const *_Nonnull s);
 
 void test_strlen(void) {
     SEP();
-    puts("ft_strlen");
+    puts("Testing ft_strlen...");
 
+    printf("Asserting ft_strlen(\"\") == strlen(\"\")...");
     assert(ft_strlen("") == strlen(""));
-    assert(ft_strlen("a") == strlen("a"));
-    assert(ft_strlen("abc") == strlen("abc"));
+    puts("✅");
+
+    printf("Asserting ft_strlen(\"hello world\") == strlen(\"hello world\")...");
     assert(ft_strlen("hello world") == strlen("hello world"));
+    puts("✅");
 
-    // Embedded NUL
+    printf("Asserting ft_strlen(\"ab\0cd\") == strlen(\"ab\0cd\")...");
     assert(ft_strlen("ab\0cd") == 2);
+    puts("✅");
 
-    puts("ft_strlen OK");
+    puts("ft_strlen ✅");
 }
 
 void test_strcmp(void) {
@@ -111,17 +115,19 @@ void test_write(void) {
 }
 
 void test_read(void) {
+
     SEP();
     puts("ft_read");
 
     char buf[16];
+    int fd = open("test/input.txt", O_RDONLY);
+    assert(fd >= 0);
 
-    // Read from stdin (manual test)
-    puts("Type something and press enter:");
-    ssize_t r = ft_read(0, buf, sizeof(buf) - 1);
-    assert(r >= 0);
+    ssize_t r = ft_read(fd, buf, sizeof(buf) - 1);
+    assert(r > 0);
+
     buf[r] = '\0';
-    printf("Read: \"%s\"\n", buf);
+    close(fd);
 
     // Invalid fd
     errno = 0;
@@ -146,11 +152,9 @@ int main() {
     test_strcmp();
     test_strcpy();
     test_strdup();
-    // test_write();
-    // test_read();
-    // test_read_file();
+    test_write();
+    test_read();
 
-    // puts("\nALL TESTS PASSED");
-    // sbinprintf("hi");
+    puts("\nALL TESTS PASSED");
     return 0;
 }
