@@ -1,6 +1,6 @@
-section .text
 global  ft_strlen
 
+section .text
 ; size_t ft_strlen(char const *_Nonnull s)
 ft_strlen:
 	xor rax, rax           ; set rax to 0

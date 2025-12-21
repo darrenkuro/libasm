@@ -1,7 +1,7 @@
-section .text
 global  ft_list_push_front
 extern  malloc
 
+section .text
 ; void ft_list_push_front(t_list **begin_list, void *data)
 ft_list_push_front:    ; rdi = begin_list, rsi = data
 	test rdi, rdi      ; if (!begin_list)

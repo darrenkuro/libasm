@@ -1,7 +1,7 @@
-section .text
 global  ft_read
 extern  __errno_location
 
+section .text
 ; ssize_t ft_read(int fd, void *buf, size_t count)
 ft_read:                 ; rdi, rsi, rdx for parameters
 	mov  eax, 0          ; 0 - read syscall

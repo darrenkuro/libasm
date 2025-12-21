@@ -1,7 +1,7 @@
-section .text
 global  ft_list_remove_if
 extern  free
 
+section .text
 ; void ft_list_remove_if(t_list **begin_list, void *data_ref,
 ;                        int (*cmp)(), void (*free_fct)(void *))
 ; rdi=begin_list, rsi=data_ref, rdx=cmp, rcx=free_fct

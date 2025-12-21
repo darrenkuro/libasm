@@ -1,9 +1,9 @@
-section .text
 global  ft_strdup
 extern  ft_strlen
 extern  ft_strcpy
 extern  malloc
 
+section .text
 ; char *ft_strdup(char const *_Nonnull s)
 ft_strdup:
 	push rdi      ; save *s

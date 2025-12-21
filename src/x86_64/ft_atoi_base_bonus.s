@@ -1,6 +1,6 @@
-section .text
 global ft_atoi_base
 
+section .text
 ; int ft_atoi_base(char *str, char *base)
 ft_atoi_base: ; rdi = *str, rsi = *base
     push r12       ; digit
