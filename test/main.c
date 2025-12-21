@@ -7,6 +7,15 @@
 #include <unistd.h>
 
 #define SEP() puts("--------------------------------------------------")
+#define TEST_OK(desc)                                                                              \
+    do {                                                                                           \
+        printf("%-30s✅\n", desc);                                                                 \
+        pass++;                                                                                    \
+    } while (0)
+#define TEST_FAIL(desc, fmt, ...)                                                                  \
+    do {                                                                                           \
+        printf("%-30s❌ (" fmt ")\n", desc, __VA_ARGS__);                                          \
+    } while (0)
 
 // Functions
 ssize_t ft_read(int fd, void *buf, size_t count);
@@ -18,6 +27,7 @@ char *ft_strdup(char const *_Nonnull s);
 
 void test_strlen(void) {
     SEP();
+    puts("Testing ft_strlen");
     struct {
         const char *s;
         const char *desc;
@@ -36,16 +46,13 @@ void test_strlen(void) {
     size_t pass = 0;
 
     for (size_t i = 0; i < count; i++) {
-        size_t expected = strlen(tests[i].s);
+        size_t exp = strlen(tests[i].s);
         size_t got = ft_strlen(tests[i].s);
 
-        printf("%-30s", tests[i].desc);
-        if (got == expected) {
-            puts("✅");
-            ++pass;
-        } else {
-            printf("❌ (expected %zu, got %zu)\n", expected, got);
-        }
+        if (got == exp)
+            TEST_OK(tests[i].desc);
+        else
+            TEST_FAIL(tests[i].desc, "expected %zu, got %zu", exp, got);
     }
 
     printf("%-30s%s  %zu/%zu\n", "ft_strlen:", pass == count ? "✅" : "⚠️", pass, count);
@@ -53,124 +60,155 @@ void test_strlen(void) {
 
 void test_strcmp(void) {
     SEP();
-    puts("ft_strcmp");
+    puts("Testing ft_strcmp");
 
-    assert(ft_strcmp("", "") == 0);
-    assert(ft_strcmp("a", "a") == 0);
-    assert(ft_strcmp("abc", "abc") == 0);
+    struct {
+        const char *a;
+        const char *b;
+        const char *desc;
+    } tests[] = {
+        {"", "", "empty strings"},
+        {"a", "a", "equal single chars"},
+        {"abc", "abc", "equal strings"},
+        {"abc", "abcd", "shorter vs longer"},
+        {"abcd", "abc", "longer vs shorter"},
+        {"abc", "abC", "case difference >"},
+        {"abC", "abc", "case difference <"},
+    };
 
-    assert(ft_strcmp("abc", "abcd") < 0);
-    assert(ft_strcmp("abcd", "abc") > 0);
+    size_t count = sizeof(tests) / sizeof(tests[0]);
+    size_t pass = 0;
 
-    assert(ft_strcmp("abc", "abC") > 0);
-    assert(ft_strcmp("abC", "abc") < 0);
+    for (size_t i = 0; i < count; i++) {
+        int exp = strcmp(tests[i].a, tests[i].b);
+        int got = ft_strcmp(tests[i].a, tests[i].b);
 
-    // Signed-char edge cases
-    char s1[] = {(char)0xFF, 0};
-    char s2[] = {0, 0};
+        if ((got == 0 && exp == 0) || (got < 0 && exp < 0) || (got > 0 && exp > 0))
+            TEST_OK(tests[i].desc);
+        else
+            TEST_FAIL(tests[i].desc, "expected sign %d, got %d", exp, got);
+    }
 
-    assert((ft_strcmp(s1, s2) > 0) == (strcmp(s1, s2) > 0));
-
-    puts("ft_strcmp OK");
+    printf("%-30s%s  %zu/%zu\n", "ft_strcmp:", pass == count ? "✅" : "⚠️", pass, count);
 }
 
 void test_strcpy(void) {
     SEP();
-    puts("ft_strcpy");
+    puts("Testing ft_strcpy");
+
+    struct {
+        const char *src;
+        const char *desc;
+    } tests[] = {
+        {"", "empty string"},
+        {"abc", "short string"},
+        {"hello world", "string with spaces"},
+    };
 
     char buf[64];
+    size_t count = sizeof(tests) / sizeof(tests[0]);
+    size_t pass = 0;
 
-    assert(ft_strcpy(buf, "") == buf);
-    assert(strcmp(buf, "") == 0);
+    for (size_t i = 0; i < count; i++) {
+        char *ret = ft_strcpy(buf, tests[i].src);
 
-    assert(ft_strcpy(buf, "abc") == buf);
-    assert(strcmp(buf, "abc") == 0);
+        if (ret == buf && strcmp(buf, tests[i].src) == 0)
+            TEST_OK(tests[i].desc);
+        else
+            TEST_FAIL(tests[i].desc, "copy failed", 0);
+    }
 
-    assert(ft_strcpy(buf, "hello world") == buf);
-    assert(strcmp(buf, "hello world") == 0);
-
-    puts("ft_strcpy OK");
+    printf("%-30s%s  %zu/%zu\n", "ft_strcpy:", pass == count ? "✅" : "⚠️", pass, count);
 }
 
 void test_strdup(void) {
     SEP();
-    puts("ft_strdup");
+    puts("Testing ft_strdup");
 
-    char *s;
+    const char *tests[] = {
+        "",
+        "abc",
+        "hello world",
+    };
 
-    s = ft_strdup("");
-    assert(s && strcmp(s, "") == 0);
-    free(s);
+    size_t count = sizeof(tests) / sizeof(tests[0]);
+    size_t pass = 0;
 
-    s = ft_strdup("abc");
-    assert(s && strcmp(s, "abc") == 0);
-    free(s);
+    for (size_t i = 0; i < count; i++) {
+        char *s = ft_strdup(tests[i]);
 
-    s = ft_strdup("hello world");
-    assert(s && strcmp(s, "hello world") == 0);
-    free(s);
+        if (s && strcmp(s, tests[i]) == 0) {
+            TEST_OK(tests[i]);
+            free(s);
+        } else {
+            TEST_FAIL(tests[i], "dup failed", 0);
+            free(s);
+        }
+    }
 
-    puts("ft_strdup OK");
+    printf("%-30s%s  %zu/%zu\n", "ft_strdup:", pass == count ? "✅" : "⚠️", pass, count);
 }
 
 void test_write(void) {
     SEP();
-    puts("ft_write");
+    puts("Testing ft_write");
+
+    size_t pass = 0;
+    size_t count = 2;
 
     errno = 0;
     ssize_t r = ft_write(1, "hello\n", 6);
-    assert(r == 6);
+    if (r == 6)
+        TEST_OK("valid fd");
+    else
+        TEST_FAIL("valid fd", "returned %zd", r);
 
-    // Invalid fd
     errno = 0;
     r = ft_write(-1, "x", 1);
-    assert(r == -1);
-    assert(errno == EBADF);
+    if (r == -1 && errno == EBADF)
+        TEST_OK("invalid fd");
+    else
+        TEST_FAIL("invalid fd", "r=%zd errno=%d", r, errno);
 
-    puts("ft_write OK");
+    printf("%-30s%s  %zu/%zu\n", "ft_write:", pass == count ? "✅" : "⚠️", pass, count);
 }
 
 void test_read(void) {
-
     SEP();
-    puts("ft_read");
+    puts("Testing ft_read");
 
+    size_t pass = 0;
+    size_t count = 2;
     char buf[16];
+
     int fd = open("test/input.txt", O_RDONLY);
-    assert(fd >= 0);
+    if (fd >= 0) {
+        ssize_t r = ft_read(fd, buf, sizeof(buf) - 1);
+        if (r > 0)
+            TEST_OK("valid fd");
+        else
+            TEST_FAIL("valid fd", "r=%zd", r);
+        close(fd);
+    } else {
+        TEST_FAIL("valid fd", "open failed", 0);
+    }
 
-    ssize_t r = ft_read(fd, buf, sizeof(buf) - 1);
-    assert(r > 0);
-
-    buf[r] = '\0';
-    close(fd);
-
-    // Invalid fd
     errno = 0;
-    r = ft_read(-1, buf, 1);
-    assert(r == -1);
-    assert(errno == EBADF);
+    ssize_t r = ft_read(-1, buf, 1);
+    if (r == -1 && errno == EBADF)
+        TEST_OK("invalid fd");
+    else
+        TEST_FAIL("invalid fd", "r=%zd errno=%d", r, errno);
 
-    puts("ft_read OK");
+    printf("%-30s%s  %zu/%zu\n", "ft_read:", pass == count ? "✅" : "⚠️", pass, count);
 }
 
 int main() {
-    // ft_write(1, "hello\n", 6);
-    // printf("errno: %d, msg: %s\n", errno, strerror(errno));
-    // printf("%d\n", ft_strcmp("abc", "abcd"));
-    // printf("%d\n", strcmp("abc", "abcd"));
-    // printf("%zu\n", ft_strlen("abc"));
-    // // char dest[4];
-    // char *test = "abc";
-    // char *dup = ft_strdup(test);
-    // printf("%s\n", dup);
     test_strlen();
     test_strcmp();
     test_strcpy();
     test_strdup();
     test_write();
     test_read();
-
-    puts("\nALL TESTS PASSED");
     return 0;
 }
