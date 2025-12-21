@@ -58,12 +58,12 @@ $1: $2
 .PHONY: test-$1
 test-$1: $1
 	@printf "%-*s Compiling: test for $1..." $(PAD) "[$(NAME)]"
-	@$(CC) $(CFLAGS) $3 $(LDFLAGS) $(call lib_ldflag,$1) -o bin
+	@$(CC) $(CFLAGS) $3 $(LDFLAGS) $(call lib_ldflag,$1) -o $$(basename $$@)
 	@echo " ✅ "
 	@printf "%-*s Running:   test for $1...\n" $(PAD) "[$(NAME)]"
-	@./bin 2>&1 | sed 's/^/    - /'
+	@./$$(basename $$@) 2>&1 | sed 's/^/    - /'
 	@printf "%-*s Removing:  test for $1..." $(PAD) "[$(NAME)]"
-	@$(RM) $$@
+	@$(RM) $$(basename $$@)
 	@echo " ✅ "
 
 .PHONY: fclean-$1
