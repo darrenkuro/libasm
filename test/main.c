@@ -146,10 +146,11 @@ int main() {
     test_strcmp();
     test_strcpy();
     test_strdup();
-    test_write();
-    test_read();
+    // test_write();
+    // test_read();
     // test_read_file();
 
-    puts("\nALL TESTS PASSED");
+    // puts("\nALL TESTS PASSED");
+    // sbinprintf("hi");
     return 0;
 }

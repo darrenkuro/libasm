@@ -31,7 +31,7 @@ SRC_B	:=	ft_atoi_base_bonus.s ft_list_push_front_bonus.s \
 			ft_list_sort_bonus.s
 OBJ		:=	$(addprefix $(OBJDIR)/, $(SRC:.s=.o))
 OBJ_B	:=	$(addprefix $(OBJDIR)/, $(SRC_B:.s=.o))
-TEST	:=	$(addprefix $(TESTDIR)/, main_b.c)
+TEST	:=	$(addprefix $(TESTDIR)/, main.c)
 TEST_B	:=	$(addprefix $(TESTDIR)/, main_bonus.c)
 
 # ------------------------ Toolchain & Flags
@@ -58,10 +58,10 @@ $1: $2
 .PHONY: test-$1
 test-$1: $1
 	@printf "%-*s Compiling: test for $1..." $(PAD) "[$(NAME)]"
-	@$(CC) $(CFLAGS) $3 $(LDFLAGS) $(call lib_ldflag,$1) -o $$@
+	@$(CC) $(CFLAGS) $3 $(LDFLAGS) $(call lib_ldflag,$1) -o bin
 	@echo " ✅ "
 	@printf "%-*s Running:   test for $1...\n" $(PAD) "[$(NAME)]"
-	@./$$@ 2>&1 | sed 's/^/    - /';
+	@./bin 2>&1 | sed 's/^/    - /'
 	@printf "%-*s Removing:  test for $1..." $(PAD) "[$(NAME)]"
 	@$(RM) $$@
 	@echo " ✅ "
