@@ -2,69 +2,74 @@ section .text
 global  ft_list_remove_if
 extern  free
 
-; void ft_list_remove_if(t_list **begin_list, void *data_ref, int (*cmp)(), void (*free_fct)(void *))
-; (*cmp)(list_ptr->data, data_ref);
-; (*free_fct)(list_ptr->data);
-ft_list_remove_if:  ; rdi = begin_list, rsi = data_ref, rdx = cmp, rcx = free_fct
-	test rdi, rdi   ; if (!begin_list) return
-	jz   .ret
-	mov  r8, [rdi]  ; if (!*begin_list) return
-	test r8, r8
-	jz   .ret
+; void ft_list_remove_if(t_list **begin_list, void *data_ref,
+;                        int (*cmp)(), void (*free_fct)(void *))
+; rdi=begin_list, rsi=data_ref, rdx=cmp, rcx=free_fct
+
+ft_list_remove_if:
+    test rdi, rdi
+    jz   .ret
+    test rdx, rdx           ; cmp must exist
+    jz   .ret
 
     push r12
     push r13
     push r14
     push r15
-	push rdi        ; begin_list  rsp +24
-	push rsi        ; data_ref    rsp +16
-	push rdx        ; cmp         rsp +8
-	push rcx        ; free_fct    rsp +0
+    push rbx                ; 5 pushes => stack aligned (SysV)
 
-	mov r12, [rdi]   ; curr = *being_list
-	xor r9, r9      ; prev = NULL
+    mov  r12, rdi           ; r12 = begin_list**
+    mov  r13, rsi           ; r13 = data_ref
+    mov  r14, rdx           ; r14 = cmp
+    mov  r15, rcx           ; r15 = free_fct (may be NULL)
+
+    mov  rbx, [r12]         ; curr = *begin_list
+    xor  r11, r11           ; prev = NULL
 
 .loop:
-	test r8, r8     ; curr = NULL?
-	jz   .done
+    test rbx, rbx
+    jz   .done
 
-	; call cmp(curr->data, data_ref)
-	mov  rdi, [r8]    ; curr->data
-	mov  rsi, [rsp+16]; data_ref
-	call [rsp+8]      ; cmp
+    ; if (cmp(curr->data, data_ref) == 0)
+    mov  rdi, [rbx]         ; curr->data
+    mov  rsi, r13           ; data_ref
+    call r14
+    test eax, eax
+    jne  .keep
 
-	test eax, eax     ; if not equal
-	jne  .next        ; next
+    ; remove curr
+    mov  r10, [rbx + 8]     ; next = curr->next
 
-	mov  r10, r8      ; tmp = curr
-	mov  r11, [r8+8]  ; next = curr->next
-
-	test r9, r9       ; if prev != NULL
-	jne  .unlink_mid  ;
-
-	;   removing head
-	mov rdi, [rsp+24] ; begin_list
-	mov [rdi], r11
-	jmp .free_node
+    test r11, r11
+    jne  .unlink_mid
+    mov  [r12], r10         ; *begin_list = next
+    jmp  .free_node
 
 .unlink_mid:
-	mov [r9+8], r11   ; prev->next = next
+    mov  [r11 + 8], r10     ; prev->next = next
 
 .free_node:
-	mov  r8, r11      ; curr = next
-	mov  rdi, [r10]   ; free_fct(tmp->data)
-	call [rsp]
-	mov  rdi, r10     ; free(tmp)
-	call free
-	jmp .loop
+    test r15, r15
+    jz   .skip_free_fct
+    mov  rdi, [rbx]         ; free_fct(curr->data)
+    call r15
+.skip_free_fct:
+    mov  rdi, rbx           ; free(curr)
+    call free
 
-.next:
-	mov r9, r8    ; prev = curr
-	mov r8, [r8+8]; curr = curr->next
-	jmp .loop
+    mov  rbx, r10           ; curr = next (prev unchanged)
+    jmp  .loop
+
+.keep:
+    mov  r11, rbx           ; prev = curr
+    mov  rbx, [rbx + 8]     ; curr = curr->next
+    jmp  .loop
 
 .done:
-	add rsp, 32   ; clean stack
-
+    pop  rbx
+    pop  r15
+    pop  r14
+    pop  r13
+    pop  r12
 .ret:
-	ret
+    ret
