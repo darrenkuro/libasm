@@ -14,7 +14,8 @@ ft_write:                 ; rdi, rsi, rdx for parameters
 	neg  eax              ; get the positive errno, how it is defined
 	mov  edi, eax         ; save errno in edi (knowing errno_location signature)
 	                      ; if using stack, need to ensure alignment
-	call __errno_location ; external func to get errno addr to rax
+                          ; external func to get errno addr to rax
+	call __errno_location wrt ..plt
 	mov  [rax], edi       ; restore errno to location, DWORD implictly due to edi
 	mov  rax, -1          ; set return value to -1
 	ret

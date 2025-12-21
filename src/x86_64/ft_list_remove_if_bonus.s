@@ -55,7 +55,7 @@ ft_list_remove_if:
     call r15
 .skip_free_fct:
     mov  rdi, rbx           ; free(curr)
-    call free
+    call free wrt ..plt
 
     mov  rbx, r10           ; curr = next (prev unchanged)
     jmp  .loop

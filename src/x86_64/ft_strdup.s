@@ -10,7 +10,7 @@ ft_strdup:
 	call ft_strlen; rax = strlen(s)
 	add  rax, 1   ; +1 for null terminator
 	mov  rdi, rax ; rdi = size
-	call malloc
+	call malloc wrt ..plt
 	test rax, rax ; malloc returned null?
 	jz   .fail
 	mov  rdi, rax ; dest = allocated buffer

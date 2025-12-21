@@ -37,6 +37,7 @@ Libasm is a small library written entirely in assembly, re-implementing a subset
 
 - In ASM, call = push & jmp, ret = pop & jmp; in terms of labels, there is no difference between a portion and a "function", they are all just addresses. Only the global ones are exported and visible to outside of the file, think of everything else like `static`.
 - The 128 bytes below rsp are guaranteed not to be clobbered by interrupts, and the compiler is allowed to use them without adjusting rsp.
+- `wrt ..plt` [`with respect to the Procedure Linkage Table`], NASM syntax; for PIE (position independent executable), all external functions (i.e. libc) should have this.
 
 ### Calling convention (AMD64 System V ABI)
 

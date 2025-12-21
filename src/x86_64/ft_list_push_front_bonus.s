@@ -11,7 +11,7 @@ ft_list_push_front:    ; rdi = begin_list, rsi = data
 	push rsi           ; save data
 
 	mov  edi, 16       ; malloc(sizeof(t_list)) → malloc(16)
-	call malloc
+	call malloc wrt ..plt
 	test rax, rax
 	jz   .fail         ; malloc failed
 
