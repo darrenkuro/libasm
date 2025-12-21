@@ -58,6 +58,7 @@ Libasm is a small library written entirely in assembly, re-implementing a subset
   | Frame pointer | `RBP` | `EBP` | `BP` | `BPL` |
 
 - QWORD: mostly addr & pointer, size_t, ssize_t; DWORD: int, unsigned int, errno, syscall number; BYTE: char; WORD: short (rare)
+- Parameters: `rdi`, `rsi`, `rdx`, `rcx`, `r8`, `r9`.
 
 #### Instructions
 
@@ -71,7 +72,9 @@ mov  [rsp], rax   ; *rsp = rax
 
 lea  rax, [rdi+8] ; rax = rdi + 8, load addr, does not touch memory
 
-add  rax, 1       ; preferred over inc/dec! (flag reasons)
+leave             ; = mov rsp, rbp, pop rbp
+
+add  rax, 1       ; preferred over inc/dec! (It update CF)
 sub  rsp, 16
 imul rax, rdi     ; rax *= rdi
 cqo               ; sign-extend rax → rdx

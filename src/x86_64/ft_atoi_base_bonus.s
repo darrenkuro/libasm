@@ -1,120 +1,141 @@
 section .text
 global ft_atoi_base
 
-; int validate_base(char *base)
-validate_base:    ; rdi: *base
-    push r12      ; count
-    push r13      ; i
-    push r14      ; alignment
-    sub  rsp, 256 ; checked[255]
+; int ft_atoi_base(char *str, char *base)
+ft_atoi_base: ; rdi = *str, rsi = *base
+    push r12       ; digit
+    push r13       ; neg
+    push r14       ;
+    push r15       ;
+    sub  rsp, 8    ; stack alignment
+    mov  r14, rdi  ; r14 = *str
+    mov  r15, rsi  ; r15 = *base
 
-    xor  r12d, r12d ; count = 0
+    test rdi, rdi
+    jz .invalid
+    test rsi, rsi
+    jz .invalid
 
-    movzx eax, byte [rdi]
-    test al, al
-    jz   .check
+    ; validate_base(base)
+    mov  rdi, rsi
+    call validate_base
+    test eax, eax
+    jz   .invalid
+    mov  r12d, eax ; r12d = digit
+    mov  r13d, 1   ; r13d = neg = 1
+    mov  rdi, r14  ; restore *str to rdi
 
-    xor  r13d, r13d ; i = 0
-    cmp al, '+'
-    je  .invalid
-    cmp al, '-'
-    je  .invalid
-    cmp al, ' '
-    je  .invalid
-    cmp al, 31
-    jbe .invalid
+.skip_ws:          ; skip whitespaces
+    movzx eax, BYTE [rdi]
+    cmp   al, ' '
+    je    .ws_next
+    cmp   al, 9     ; if *s < 9
+    jb    .signs
+    cmp   al, 13    ; if *s > 13
+    ja    .signs
+.ws_next:
+    add   rdi, 1
+    jmp   .skip_ws
 
-.check_dup:
+.signs:
+    movzx eax, BYTE [rdi]
+    cmp   al, '+'   ; if *s == '+'
+    je    .sign_next
+    cmp   al, '-'   ; if *s != '-'
+    jne   .convert  ; neither [+-], break
+    neg   r13d      ; *s == '-'
+.sign_next:
+    add   rdi, 1
+    jmp   .signs
 
+.convert:
+    mov  rsi, r15   ; restore *base to rsi
+    mov  edx, r12d  ; digit
+    call read_num
 
-.check:
-    cmp  r12d, 1
-    js   .invalid
-    mov  rax, r12 ; rax = count
-    jmp  .ret
+    imul eax, r13d
+    jmp  .done
 
 .invalid:
-    xor  rax, rax ; rax = 0
+    xor eax, eax    ; set return to 0
 
-.ret:
-    add  rsp, 256
-    pop  r14
-    pop  r13
-    pop  r12
+.done:
+    add rsp, 8
+    pop r15
+    pop r14
+    pop r13
+    pop r12
     ret
 
-; int ft_atoi_base(char *str, char *base)
-ft_atoi_base: ; rdi: *str, rsi: *base
+; int validate_base(char *base)
+validate_base:    ; rdi = *base, returns eax
+    sub  rsp, 264 ; checked[256] + alignment
+    xor  eax, eax ; count = 0
+
+.vb_loop:
+    movzx ecx, BYTE [rdi]
+    test cl, cl
+    jz   .vb_done
+    cmp  cl, '+'
+    je   .vb_fail
+    cmp  cl, '-'
+    je   .vb_fail
+    cmp  cl, 32
+    jbe  .vb_fail
+    cmp  cl, 127
+    je   .vb_fail
+    xor  edx, edx  ; i = 0
+
+.vb_check:
+    cmp  edx, eax
+    jge  .vb_store  ; if i >= count, break
+    mov  r8b, [rsp + rdx] ; r8b = checked[i]
+    cmp  r8b, cl
+    je   .vb_fail
+    add  edx, 1    ; i++
+    jmp  .vb_check
+
+.vb_store:
+    mov  [rsp + rdx], cl
+    add  eax, 1    ; count++
+    add  rdi, 1    ; base++
+    jmp  .vb_loop
+
+.vb_done:
+    cmp  eax, 2
+    jb   .vb_fail
+    add  rsp, 264
     ret
 
+.vb_fail:
+    xor  eax, eax
+    add  rsp, 264
+    ret
 
+; int read_num(char *str, char *base, int digit)
+read_num: ; rdi, rsi, rdx
+    xor eax, eax   ; num = 0
 
-	; int validate_base(char *base)
-	; {
-	; char checked[255]
-	; int  count
-	; int  i
+.rn_loop1:
+    movzx ecx, BYTE [rdi]
+    test  cl, cl
+    jz    .rn_ret
+    xor   r8d, r8d ; i =0
 
-	; count = 0
-	; i = 0
-	; while (*base)
-	; {
-	; i = 0
-	; if (*base == '+' || *base == '-' || (*base >= 9 && *base <= 13)
-	; || *base == ' ' || *base <= 31)
-	; return (0)
-	; while (i < count)
-	; {
-	; if (*base == checked[i])
-	; return (0)
-	; ++i
-	; }
-	; checked[i] = *base
-	; ++count
-	; ++base
-	; }
-	; if (count < 1)
-	; return (0)
-	; return (count)
-	; }
+.rn_loop2:
+    mov  r9b, [rsi + r8d] ; r9 = base[i]
+    cmp  r9b, cl
+    je   .rn_next
+    test r9b, r9b
+    jz   .rn_ret
+    add  r8d, 1
+    jmp  .rn_loop2
 
-	; int read_num(char *str, char *base, int digit)
-	; {
-	; int num
-	; int i
+.rn_next:
+    imul eax, edx  ; num*=digit
+    add  eax, r8d  ; num+=i
+    add  rdi, 1    ; str++
+    jmp  .rn_loop1
 
-	; num = 0
-	; while (*str)
-	; {
-	; i = 0
-	; while (base[i] != *str)
-	; {
-	; if (!base[i])
-	; return (num)
-	; ++i
-	; }
-	; num = num * digit + i
-	; ++str
-	; }
-	; return (num)
-	; }
-
-	; int ft_atoi_base(char *str, char *base)
-	; {
-	; int digit
-	; int neg
-
-	; neg = 1
-	; digit = validate_base(base)
-	; if (digit == 0)
-	; return (0)
-	; while (*str == ' ' || (*str >= 9 && *str <= 13))
-	; ++str
-	; while (*str == '+' || *str == '-')
-	; {
-	; if (*str == '-')
-	; neg = -neg
-	; ++str
-	; }
-	; return (neg * read_num(str, base, digit))
-	; }
+.rn_ret:
+    ret
