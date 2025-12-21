@@ -32,8 +32,8 @@ void test_strlen(void) {
         {"\xff\xfe\xfd", "non-ASCII bytes"},
     };
 
-    int count = sizeof(tests) / sizeof(tests[0]);
-    int pass = 0;
+    size_t count = sizeof(tests) / sizeof(tests[0]);
+    size_t pass = 0;
 
     for (size_t i = 0; i < count; i++) {
         size_t expected = strlen(tests[i].s);
@@ -48,7 +48,7 @@ void test_strlen(void) {
         }
     }
 
-    printf("%-30s %i/%i %s\n", "ft_strlen:", pass, count, pass == count ? "✅" : "⚠️");
+    printf("%-30s%s  %zu/%zu\n", "ft_strlen:", pass == count ? "✅" : "⚠️", pass, count);
 }
 
 void test_strcmp(void) {
