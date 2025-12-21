@@ -6,11 +6,11 @@ ft_list_size:           ; rdi *begin
 	xor eax, eax        ; size
 
 .loop:
-	test rdi, rdi       ; if (begin / rdi == NULL)
+	test rdi, rdi       ; if (*begin / rdi == NULL)
 	jz   .ret
 	add  eax, 1         ; better than inc, sets CF
 	mov  rdi, [rdi + 8] ; begin = begin->next
-	                    ; rdi: data, rdi + 8: next
+	                    ; rdi + 0: data, rdi + 8: next
 	jmp  .loop
 
 .ret:

@@ -12,16 +12,20 @@ ft_list_remove_if:  ; rdi = begin_list, rsi = data_ref, rdx = cmp, rcx = free_fc
 	test r8, r8
 	jz   .ret
 
-	push rdi          ; begin_list  +24
-	push rsi          ; data_ref    +16
-	push rdx          ; cmp         +8
-	push rcx          ; free_fct    +0
+    push r12
+    push r13
+    push r14
+    push r15
+	push rdi        ; begin_list  rsp +24
+	push rsi        ; data_ref    rsp +16
+	push rdx        ; cmp         rsp +8
+	push rcx        ; free_fct    rsp +0
 
-	mov r8, [rdi]     ; curr = *being_list
-	xor r9, r9        ; prev = NULL
+	mov r12, [rdi]   ; curr = *being_list
+	xor r9, r9      ; prev = NULL
 
 .loop:
-	test r8, r8       ; curr = NULL?
+	test r8, r8     ; curr = NULL?
 	jz   .done
 
 	; call cmp(curr->data, data_ref)
