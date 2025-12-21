@@ -123,7 +123,7 @@ read_num: ; rdi, rsi, rdx
     xor   r8d, r8d ; i =0
 
 .rn_loop2:
-    mov  r9b, [rsi + r8d] ; r9 = base[i]
+    mov  r9b, [rsi + r8] ; r9 = base[i]
     cmp  r9b, cl
     je   .rn_next
     test r9b, r9b
