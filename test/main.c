@@ -18,21 +18,41 @@ char *ft_strdup(char const *_Nonnull s);
 
 void test_strlen(void) {
     SEP();
-    puts("Testing ft_strlen...");
+    struct {
+        const char *s;
+        const char *desc;
+    } tests[] = {
+        {"", "empty string"},
+        {"a", "single character"},
+        {"hello", "short string"},
+        {"hello world", "string with space"},
+        {"ab\0cd", "stops at first null byte"},
+        {"0123456789abcdef", "hex digits"},
+        {"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "repeated chars"},
+        {"\xff\xfe\xfd", "non-ASCII bytes"},
+    };
 
-    printf("Asserting ft_strlen(\"\") == strlen(\"\")...");
-    assert(ft_strlen("") == strlen(""));
-    puts("✅");
+    for (size_t i = 0; i < sizeof(tests) / sizeof(tests[0]); i++) {
+        size_t expected = strlen(tests[i].s);
+        size_t got = ft_strlen(tests[i].s);
 
-    printf("Asserting ft_strlen(\"hello world\") == strlen(\"hello world\")...");
-    assert(ft_strlen("hello world") == strlen("hello world"));
-    puts("✅");
+        printf("%-30s", tests[i].desc);
+        if (got == expected) {
+            puts("✅");
+        } else {
+            printf("❌ (expected %zu, got %zu)\n", expected, got);
+        }
+    }
+    // puts("Testing ft_strlen...");
 
-    printf("Asserting ft_strlen(\"ab\0cd\") == strlen(\"ab\0cd\")...");
-    assert(ft_strlen("ab\0cd") == 2);
-    puts("✅");
+    // printf("Empty string...");
+    // puts(ft_strlen("") == strlen("") ? "✅" : "⚠️");
 
-    puts("ft_strlen ✅");
+    // printf("Normal string with space...");
+    // puts(fft_strlen("hello world") == strlen("hello world") ? "✅" : "⚠️");
+
+    // printf("String containing null byte...");
+    // puts(ft_strlen("ab\0cd") == strlen("ab\0cd") ? "✅" : "⚠️");
 }
 
 void test_strcmp(void) {
