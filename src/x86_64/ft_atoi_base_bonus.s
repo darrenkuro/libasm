@@ -1,4 +1,53 @@
+section .text
+global ft_atoi_base
+
+; int validate_base(char *base)
+validate_base:    ; rdi: *base
+    push r12      ; count
+    push r13      ; i
+    push r14      ; alignment
+    sub  rsp, 256 ; checked[255]
+
+    xor  r12d, r12d ; count = 0
+
+    movzx eax, byte [rdi]
+    test al, al
+    jz   .check
+
+    xor  r13d, r13d ; i = 0
+    cmp al, '+'
+    je  .invalid
+    cmp al, '-'
+    je  .invalid
+    cmp al, ' '
+    je  .invalid
+    cmp al, 31
+    jbe .invalid
+
+.check_dup:
+
+
+.check:
+    cmp  r12d, 1
+    js   .invalid
+    mov  rax, r12 ; rax = count
+    jmp  .ret
+
+.invalid:
+    xor  rax, rax ; rax = 0
+
+.ret:
+    add  rsp, 256
+    pop  r14
+    pop  r13
+    pop  r12
+    ret
+
 ; int ft_atoi_base(char *str, char *base)
+ft_atoi_base: ; rdi: *str, rsi: *base
+
+
+
 
 	; int validate_base(char *base)
 	; {

@@ -1,155 +1,207 @@
-#include <assert.h>
-#include <errno.h> // errno
-#include <fcntl.h>
-#include <stdio.h>  // ssize_t, size_t, printf
-#include <stdlib.h> // free
-#include <string.h> // strerrno
-#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* ===== libasm bonus prototypes ===== */
+
+typedef struct s_list {
+    void *data;
+    struct s_list *next;
+} t_list;
+
+int ft_atoi_base(char *str, char *base);
+void ft_list_push_front(t_list **begin_list, void *data);
+int ft_list_size(t_list *begin_list);
+void ft_list_sort(t_list **begin_list, int (*cmp)());
+void ft_list_remove_if(t_list **begin_list, void *data_ref, int (*cmp)(), void (*free_fct)(void *));
+
+/* ===== test macros ===== */
 
 #define SEP() puts("--------------------------------------------------")
+#define TEST_OK(desc)                                                                              \
+    do {                                                                                           \
+        printf("%-35s ✅\n", desc);                                                                \
+        pass++;                                                                                    \
+    } while (0)
 
-// Functions
-ssize_t ft_read(int fd, void *buf, size_t count);
-ssize_t ft_write(int fd, void const *buf, size_t count);
-int ft_strcmp(char const *_Nonnull s1, char const *_Nonnull s2);
-size_t ft_strlen(char const *_Nonnull s);
-char *ft_strcpy(char *_Nonnull dest, char const *_Nonnull src);
-char *ft_strdup(char const *_Nonnull s);
+#define TEST_FAIL(desc, fmt, ...)                                                                  \
+    do {                                                                                           \
+        printf("%-35s ❌ (" fmt ")\n", desc, ##__VA_ARGS__);                                       \
+    } while (0)
 
-void test_strlen(void) {
-    SEP();
-    puts("ft_strlen");
+/* ===== helpers ===== */
 
-    assert(ft_strlen("") == strlen(""));
-    assert(ft_strlen("a") == strlen("a"));
-    assert(ft_strlen("abc") == strlen("abc"));
-    assert(ft_strlen("hello world") == strlen("hello world"));
-
-    // Embedded NUL
-    assert(ft_strlen("ab\0cd") == 2);
-
-    puts("ft_strlen OK");
+static t_list *lst_new(void *data) {
+    t_list *n = malloc(sizeof(*n));
+    if (!n)
+        return NULL;
+    n->data = data;
+    n->next = NULL;
+    return n;
 }
 
-void test_strcmp(void) {
-    SEP();
-    puts("ft_strcmp");
-
-    assert(ft_strcmp("", "") == 0);
-    assert(ft_strcmp("a", "a") == 0);
-    assert(ft_strcmp("abc", "abc") == 0);
-
-    assert(ft_strcmp("abc", "abcd") < 0);
-    assert(ft_strcmp("abcd", "abc") > 0);
-
-    assert(ft_strcmp("abc", "abC") > 0);
-    assert(ft_strcmp("abC", "abc") < 0);
-
-    // Signed-char edge cases
-    char s1[] = {(char)0xFF, 0};
-    char s2[] = {0, 0};
-
-    assert((ft_strcmp(s1, s2) > 0) == (strcmp(s1, s2) > 0));
-
-    puts("ft_strcmp OK");
+static void lst_clear(t_list **lst) {
+    t_list *tmp;
+    while (*lst) {
+        tmp = (*lst)->next;
+        free((*lst)->data);
+        free(*lst);
+        *lst = tmp;
+    }
 }
 
-void test_strcpy(void) {
-    SEP();
-    puts("ft_strcpy");
-
-    char buf[64];
-
-    assert(ft_strcpy(buf, "") == buf);
-    assert(strcmp(buf, "") == 0);
-
-    assert(ft_strcpy(buf, "abc") == buf);
-    assert(strcmp(buf, "abc") == 0);
-
-    assert(ft_strcpy(buf, "hello world") == buf);
-    assert(strcmp(buf, "hello world") == 0);
-
-    puts("ft_strcpy OK");
+static int cmp_str(void *a, void *b) {
+    return strcmp(a, b);
 }
 
-void test_strdup(void) {
-    SEP();
-    puts("ft_strdup");
-
-    char *s;
-
-    s = ft_strdup("");
-    assert(s && strcmp(s, "") == 0);
-    free(s);
-
-    s = ft_strdup("abc");
-    assert(s && strcmp(s, "abc") == 0);
-    free(s);
-
-    s = ft_strdup("hello world");
-    assert(s && strcmp(s, "hello world") == 0);
-    free(s);
-
-    puts("ft_strdup OK");
+static void free_str(void *p) {
+    free(p);
 }
 
-void test_write(void) {
+/* ===== tests ===== */
+
+static void test_atoi_base(void) {
     SEP();
-    puts("ft_write");
+    puts("Testing ft_atoi_base");
 
-    errno = 0;
-    ssize_t r = ft_write(1, "hello\n", 6);
-    assert(r == 6);
+    struct {
+        char *str;
+        char *base;
+        int expected;
+        char *desc;
+    } tests[] = {
+        {"42", "0123456789", 42, "decimal"},
+        {"2A", "0123456789ABCDEF", 42, "hex"},
+        {"-101010", "01", -42, "binary negative"},
+        {"   +42", "0123456789", 42, "leading whitespace"},
+        {"123", "0", 0, "base too short"},
+        {"123", "1123", 0, "duplicate in base"},
+        {"123", "+0123", 0, "invalid char in base"},
+        {"zzz", "z", 0, "single-char base"},
+    };
 
-    // Invalid fd
-    errno = 0;
-    r = ft_write(-1, "x", 1);
-    assert(r == -1);
-    assert(errno == EBADF);
+    size_t count = sizeof(tests) / sizeof(tests[0]);
+    size_t pass = 0;
 
-    puts("ft_write OK");
+    for (size_t i = 0; i < count; i++) {
+        int got = ft_atoi_base(tests[i].str, tests[i].base);
+        if (got == tests[i].expected)
+            TEST_OK(tests[i].desc);
+        else
+            TEST_FAIL(tests[i].desc, "expected %d, got %d", tests[i].expected, got);
+    }
+
+    printf("%-35s %s %zu/%zu\n", "ft_atoi_base:", pass == count ? "✅" : "⚠️", pass, count);
 }
 
-void test_read(void) {
+static void test_list_push_front(void) {
     SEP();
-    puts("ft_read");
+    puts("Testing ft_list_push_front");
 
-    char buf[16];
+    size_t pass = 0;
+    size_t count = 1;
+    t_list *lst = NULL;
 
-    // Read from stdin (manual test)
-    puts("Type something and press enter:");
-    ssize_t r = ft_read(0, buf, sizeof(buf) - 1);
-    assert(r >= 0);
-    buf[r] = '\0';
-    printf("Read: \"%s\"\n", buf);
+    ft_list_push_front(&lst, strdup("c"));
+    ft_list_push_front(&lst, strdup("b"));
+    ft_list_push_front(&lst, strdup("a"));
 
-    // Invalid fd
-    errno = 0;
-    r = ft_read(-1, buf, 1);
-    assert(r == -1);
-    assert(errno == EBADF);
+    if (lst && strcmp(lst->data, "a") == 0 && strcmp(lst->next->data, "b") == 0 &&
+        strcmp(lst->next->next->data, "c") == 0)
+        TEST_OK("push_front order");
+    else
+        TEST_FAIL("push_front order", "wrong list structure");
 
-    puts("ft_read OK");
+    lst_clear(&lst);
+
+    printf("%-35s %s %zu/%zu\n", "ft_list_push_front:", pass == count ? "✅" : "⚠️", pass, count);
 }
 
-int main() {
-    // ft_write(1, "hello\n", 6);
-    // printf("errno: %d, msg: %s\n", errno, strerror(errno));
-    // printf("%d\n", ft_strcmp("abc", "abcd"));
-    // printf("%d\n", strcmp("abc", "abcd"));
-    // printf("%zu\n", ft_strlen("abc"));
-    // // char dest[4];
-    // char *test = "abc";
-    // char *dup = ft_strdup(test);
-    // printf("%s\n", dup);
-    test_strlen();
-    test_strcmp();
-    test_strcpy();
-    test_strdup();
-    test_write();
-    test_read();
-    // test_read_file();
+static void test_list_size(void) {
+    SEP();
+    puts("Testing ft_list_size");
 
-    puts("\nALL TESTS PASSED");
+    size_t pass = 0;
+    size_t count = 2;
+
+    t_list *lst = NULL;
+    if (ft_list_size(lst) == 0)
+        TEST_OK("empty list");
+    else
+        TEST_FAIL("empty list", "expected 0");
+
+    lst = lst_new(strdup("a"));
+    lst->next = lst_new(strdup("b"));
+    lst->next->next = lst_new(strdup("c"));
+
+    if (ft_list_size(lst) == 3)
+        TEST_OK("3 elements");
+    else
+        TEST_FAIL("3 elements", "expected 3");
+
+    lst_clear(&lst);
+
+    printf("%-35s %s %zu/%zu\n", "ft_list_size:", pass == count ? "✅" : "⚠️", pass, count);
+}
+
+static void test_list_sort(void) {
+    SEP();
+    puts("Testing ft_list_sort");
+
+    size_t pass = 0;
+    size_t count = 1;
+
+    t_list *lst = NULL;
+    ft_list_push_front(&lst, strdup("banana"));
+    ft_list_push_front(&lst, strdup("apple"));
+    ft_list_push_front(&lst, strdup("cherry"));
+
+    ft_list_sort(&lst, cmp_str);
+
+    if (strcmp(lst->data, "apple") == 0 && strcmp(lst->next->data, "banana") == 0 &&
+        strcmp(lst->next->next->data, "cherry") == 0)
+        TEST_OK("sorted order");
+    else
+        TEST_FAIL("sorted order", "incorrect");
+
+    lst_clear(&lst);
+
+    printf("%-35s %s %zu/%zu\n", "ft_list_sort:", pass == count ? "✅" : "⚠️", pass, count);
+}
+
+static void test_list_remove_if(void) {
+    SEP();
+    puts("Testing ft_list_remove_if");
+
+    size_t pass = 0;
+    size_t count = 1;
+
+    t_list *lst = NULL;
+    ft_list_push_front(&lst, strdup("keep"));
+    ft_list_push_front(&lst, strdup("rm"));
+    ft_list_push_front(&lst, strdup("keep"));
+    ft_list_push_front(&lst, strdup("rm"));
+
+    ft_list_remove_if(&lst, "rm", cmp_str, free_str);
+
+    if (ft_list_size(lst) == 2 && strcmp(lst->data, "keep") == 0 &&
+        strcmp(lst->next->data, "keep") == 0)
+        TEST_OK("remove_if");
+    else
+        TEST_FAIL("remove_if", "unexpected list");
+
+    lst_clear(&lst);
+
+    printf("%-35s %s %zu/%zu\n", "ft_list_remove_if:", pass == count ? "✅" : "⚠️", pass, count);
+}
+
+/* ===== main ===== */
+
+int main(void) {
+    // test_atoi_base();
+    test_list_push_front();
+    test_list_size();
+    test_list_sort();
+    test_list_remove_if();
     return 0;
 }

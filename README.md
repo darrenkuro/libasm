@@ -36,6 +36,7 @@ Libasm is a small library written entirely in assembly, re-implementing a subset
 ## 📝 Notes & Lessons
 
 - In ASM, call = push & jmp, ret = pop & jmp; in terms of labels, there is no difference between a portion and a "function", they are all just addresses. Only the global ones are exported and visible to outside of the file, think of everything else like `static`.
+- The 128 bytes below rsp are guaranteed not to be clobbered by interrupts, and the compiler is allowed to use them without adjusting rsp.
 
 ### Calling convention (AMD64 System V ABI)
 
@@ -81,7 +82,8 @@ cmp  rdi, rax     ; rdi - rax
 jz   label        ; = je (equal, zero), ZF
 jnz  label        ; = jne (not equal, not zero), !ZF
 js   label        ; if negative, SF; vs. jns (if not neg)
-jg/jge; jl/jle    ; >, >=; <, <=
+jg/jge; jl/jle    ; >, >=; <, <= (signed) greater/less
+ja/jae; jb/jbe    ; >, >=; <, <= (unsigned) above/below
 
 ```
 
