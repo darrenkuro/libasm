@@ -35,6 +35,8 @@ Libasm is a small library written entirely in assembly, re-implementing a subset
 
 ## 📝 Notes & Lessons
 
+- In ASM, call = push & jmp, ret = pop & jmp; in terms of labels, there is no difference between a portion and a "function", they are all just addresses. Only the global ones are exported and visible to outside of the file, think of everything else like `static`.
+
 ### Calling convention (AMD64 System V ABI)
 
 #### Registers
