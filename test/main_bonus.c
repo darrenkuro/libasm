@@ -198,7 +198,7 @@ static void test_list_remove_if(void) {
 /* ===== main ===== */
 
 int main(void) {
-    // test_atoi_base();
+    test_atoi_base();
     test_list_push_front();
     test_list_size();
     test_list_sort();
