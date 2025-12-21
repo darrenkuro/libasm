@@ -32,27 +32,23 @@ void test_strlen(void) {
         {"\xff\xfe\xfd", "non-ASCII bytes"},
     };
 
-    for (size_t i = 0; i < sizeof(tests) / sizeof(tests[0]); i++) {
+    int count = sizeof(tests) / sizeof(tests[0]);
+    int pass = 0;
+
+    for (size_t i = 0; i < count; i++) {
         size_t expected = strlen(tests[i].s);
         size_t got = ft_strlen(tests[i].s);
 
         printf("%-30s", tests[i].desc);
         if (got == expected) {
             puts("✅");
+            ++pass;
         } else {
             printf("❌ (expected %zu, got %zu)\n", expected, got);
         }
     }
-    // puts("Testing ft_strlen...");
 
-    // printf("Empty string...");
-    // puts(ft_strlen("") == strlen("") ? "✅" : "⚠️");
-
-    // printf("Normal string with space...");
-    // puts(fft_strlen("hello world") == strlen("hello world") ? "✅" : "⚠️");
-
-    // printf("String containing null byte...");
-    // puts(ft_strlen("ab\0cd") == strlen("ab\0cd") ? "✅" : "⚠️");
+    printf("%-30s %i/%i %s\n", "ft_strlen:", pass, count, pass == count ? "✅" : "⚠️");
 }
 
 void test_strcmp(void) {
