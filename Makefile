@@ -18,8 +18,10 @@ $(error Unsupported OS: $(UNAME_S))
 endif
 
 # ------------------------ Directories
+OBJROOT	:=	obj
 SRCDIR	:=	src/$(ARCH)
-OBJDIR	:=	obj/$(ARCH)
+OBJDIR	:=	$(addprefix $(OBJROOT)/, $(ARCH))
+LIBDIR	:=	.
 TESTDIR	:=	test
 
 # ------------------------ Files
@@ -29,18 +31,19 @@ SRC_B	:=	ft_atoi_base_bonus.s ft_list_push_front_bonus.s \
 			ft_list_sort_bonus.s
 OBJ		:=	$(addprefix $(OBJDIR)/, $(SRC:.s=.o))
 OBJ_B	:=	$(addprefix $(OBJDIR)/, $(SRC_B:.s=.o))
-TEST	:=	$(addprefix $(TESTDIR)/, main.c)
+TEST	:=	$(addprefix $(TESTDIR)/, main_b.c)
 TEST_B	:=	$(addprefix $(TESTDIR)/, main_bonus.c)
 
 # ------------------------ Toolchain & Flags
 CC		:=	cc
 CFLAGS	:=	-Wall -Wextra -Werror
-LDFLAGS	:=	-L.
-LDLIBS	:=	-lasm
+LDFLAGS	:=	-L $(LIBDIR)
 AS		:=	$($(UNAME_S)_AS)
 ASFLAGS	:=	$($(UNAME_S)_ASFLAGS)
 AR		:=	ar rcs
 RM		:=	rm -rf
+
+lib_ldflag = -l $(patsubst lib%.a,%,$(notdir $1))
 
 # ------------------------ Build Settings
 .DEFAULT_GOAL	:= all
@@ -52,14 +55,19 @@ $1: $2
 	@$(AR) $$@ $$^
 	@echo " ✅ "
 
-.PHONY: test-$(basename $1)
-test-$(basename $1): $1
-	@$(CC) $(CFLAGS) $3 $(LDFLAGS) $(LDLIBS) -o $$@
-	@./$$@
+.PHONY: test-$1
+test-$1: $1
+	@printf "%-*s Compiling: test for $1..." $(PAD) "[$(NAME)]"
+	@$(CC) $(CFLAGS) $3 $(LDFLAGS) $(call lib_ldflag,$1) -o $$@
+	@echo " ✅ "
+	@printf "%-*s Running:   test for $1...\n" $(PAD) "[$(NAME)]"
+	@set -o pipefail; ./$$@ 2>&1 | sed 's/^/    - /' || exit $$?;
+	@printf "%-*s Removing:  test for $1..." $(PAD) "[$(NAME)]"
 	@$(RM) $$@
+	@echo " ✅ "
 
-.PHONY: fclean-$(basename $1)
-fclean-$(basename $1): clean
+.PHONY: fclean-$1
+fclean-$1: clean
 	@if [ -f "$1" ]; then \
 		printf "%-*s Removing:  $1..." $(PAD) "[$(NAME)]"; \
 		$(RM) $1; \
@@ -71,18 +79,18 @@ $(eval $(call BUILD_RULE,$(TARGET),$(OBJ),$(TEST)))
 $(eval $(call BUILD_RULE,$(TARGET_B),$(OBJ_B),$(TEST_B)))
 
 .PHONY: all
-all: $(TARGET)
+all: $(TARGET) $(TARGET_B)
 
 .PHONY: clean
 clean:
-	@if [ -d "$(OBJDIR)" ]; then \
-		printf "%-*s Removing:  $(OBJDIR)/..." $(PAD) "[$(NAME)]"; \
-		$(RM) -r $(OBJDIR); \
+	@if [ -d "$(OBJROOT)" ]; then \
+		printf "%-*s Removing:  $(OBJROOT)/..." $(PAD) "[$(NAME)]"; \
+		$(RM) -r $(OBJROOT); \
 		echo " ✅ "; \
 	fi
 
 .PHONY: fclean
-fclean: fclean-$(basename $(TARGET)) fclean-$(basename $(TARGET_B))
+fclean: fclean-$(TARGET) fclean-$(TARGET_B)
 
 .PHONY: re
 re: fclean all
@@ -91,10 +99,10 @@ re: fclean all
 bonus: $(TARGET_B)
 
 .PHONY: test
-test: test-$(basename $(TARGET))
+test: test-$(TARGET)
 
 .PHONY: test-bonus
-test-bonus: test-$(basename $(TARGET_B))
+test-bonus: test-$(TARGET_B)
 
 $(OBJDIR):
 	@printf "%-*s Creating:  $@ directory..." $(PAD) "[$(NAME)]"
@@ -106,4 +114,4 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.s | $(OBJDIR)
 	@$(AS) $(ASFLAGS) $< -o $@
 	@echo " ✅ "
 
-.DELETE_ON_ERROR:     # Delete target build that's incomplete
+.DELETE_ON_ERROR:   # Delete target build that's incomplete
