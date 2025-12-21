@@ -45,7 +45,7 @@ validate_base:    ; rdi: *base
 
 ; int ft_atoi_base(char *str, char *base)
 ft_atoi_base: ; rdi: *str, rsi: *base
-
+    ret
 
 
 
