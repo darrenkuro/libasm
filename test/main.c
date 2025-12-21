@@ -14,7 +14,7 @@
     } while (0)
 #define TEST_FAIL(desc, fmt, ...)                                                                  \
     do {                                                                                           \
-        printf("%-30s❌ (" fmt ")\n", desc, __VA_ARGS__);                                          \
+        printf("%-30s❌ (" fmt ")\n", desc, ##__VA_ARGS__);                                        \
     } while (0)
 
 // Functions
@@ -115,7 +115,7 @@ void test_strcpy(void) {
         if (ret == buf && strcmp(buf, tests[i].src) == 0)
             TEST_OK(tests[i].desc);
         else
-            TEST_FAIL(tests[i].desc, "copy failed", 0);
+            TEST_FAIL(tests[i].desc, "copy failed");
     }
 
     printf("%-30s%s  %zu/%zu\n", "ft_strcpy:", pass == count ? "✅" : "⚠️", pass, count);
@@ -141,7 +141,7 @@ void test_strdup(void) {
             TEST_OK(tests[i]);
             free(s);
         } else {
-            TEST_FAIL(tests[i], "dup failed", 0);
+            TEST_FAIL(tests[i], "dup failed");
             free(s);
         }
     }
@@ -156,6 +156,7 @@ void test_write(void) {
     size_t pass = 0;
     size_t count = 2;
 
+    fflush(stdout);
     errno = 0;
     ssize_t r = ft_write(1, "hello\n", 6);
     if (r == 6)
@@ -189,9 +190,8 @@ void test_read(void) {
         else
             TEST_FAIL("valid fd", "r=%zd", r);
         close(fd);
-    } else {
-        TEST_FAIL("valid fd", "open failed", 0);
-    }
+    } else
+        TEST_FAIL("valid fd", "open failed");
 
     errno = 0;
     ssize_t r = ft_read(-1, buf, 1);
