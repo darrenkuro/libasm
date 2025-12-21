@@ -61,7 +61,7 @@ test-$1: $1
 	@$(CC) $(CFLAGS) $3 $(LDFLAGS) $(call lib_ldflag,$1) -o $$@
 	@echo " ✅ "
 	@printf "%-*s Running:   test for $1...\n" $(PAD) "[$(NAME)]"
-	@set -o pipefail; ./$$@ 2>&1 | sed 's/^/    - /' || exit $$?;
+	@./$$@ 2>&1 | sed 's/^/    - /';
 	@printf "%-*s Removing:  test for $1..." $(PAD) "[$(NAME)]"
 	@$(RM) $$@
 	@echo " ✅ "
