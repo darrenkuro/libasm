@@ -11,23 +11,22 @@ ft_list_push_front:    ; rdi = begin_list, rsi = data
 	push rsi           ; save data
 
 	mov  edi, 16       ; malloc(sizeof(t_list)) → malloc(16)
+    sub  rsp, 8        ; stack alignment
 	call malloc wrt ..plt
+    add  rsp, 8        ; restore stack
 	test rax, rax
 	jz   .fail         ; malloc failed
 
-	pop rsi            ; restore data
-	pop rdi            ; restore begin_list
+	pop  [rax]         ; restore data to node->data
+    pop  rdi
 
-	mov [rax], rsi     ; node->data = data
+    mov  rdx, [rdi]
+    mov  [rax + 8], rdx; node->next = *begin_list
 
-	mov rcx, [rdi]
-	mov [rax + 8], rcx ; node->next = *begin_list
-
-	mov [rdi], rax     ; *begin_list = node
-
-.ret:
-	ret
+	mov  [rdi], rax      ; *begin_list = node
+    jmp  .ret
 
 .fail:
 	add rsp, 16        ; clean stack on malloc failure
+.ret:
 	ret

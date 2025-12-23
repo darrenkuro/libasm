@@ -3,7 +3,7 @@ extern  free
 
 section .text
 ; void ft_list_remove_if(t_list **begin_list, void *data_ref,
-;                        int (*cmp)(), void (*free_fct)(void *))
+; int (*cmp)(), void (*free_fct)(void *))
 ; rdi=begin_list, rsi=data_ref, rdx=cmp, rcx=free_fct
 
 ft_list_remove_if:
@@ -24,17 +24,17 @@ ft_list_remove_if:
     mov  r15, rcx           ; r15 = free_fct (may be NULL)
 
     mov  rbx, [r12]         ; curr = *begin_list
-    xor  r11, r11           ; prev = NULL
+    xor  r11d, r11d         ; prev = NULL
 
 .loop:
-    test rbx, rbx
+    test rbx, rbx           ; curr = NULL?
     jz   .done
 
     ; if (cmp(curr->data, data_ref) == 0)
     mov  rdi, [rbx]         ; curr->data
     mov  rsi, r13           ; data_ref
     call r14
-    test eax, eax
+    cmp  eax, 0
     jne  .keep
 
     ; remove curr
