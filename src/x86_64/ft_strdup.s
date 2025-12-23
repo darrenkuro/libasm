@@ -4,7 +4,7 @@ extern  ft_strcpy
 extern  malloc
 
 section .text
-; char *ft_strdup(char const *_Nonnull s)
+; char *ft_strdup(const char *s);
 ft_strdup:
 	push rdi      ; save *s
 	call ft_strlen; rax = strlen(s)
