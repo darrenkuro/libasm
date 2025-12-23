@@ -60,6 +60,13 @@ Libasm is a small library written entirely in assembly, re-implementing a subset
 
 - QWORD: mostly addr & pointer, size_t, ssize_t; DWORD: int, unsigned int, errno, syscall number; BYTE: char; WORD: short (rare)
 - Parameters: `rdi`, `rsi`, `rdx`, `rcx`, `r8`, `r9`.
+- imm (immediate value), coded inside the instruction; imm8 (1-byte), imm32 (4-bytes), etc.
+- REX prefix, 1 byte indicator 0b0100xxxx used only in x86-64 mode, extending the old x86 instruction encoding so the CPU can use 64-bit operands, access more registers (r8-r15). 0x40-0x4F. 0100WRXB, each bit has a meaning; w = width, 1 is 64 bits, B is reg + 8 (r8-r15). REX.W = 0x48 Meaning 64-bit operand size. e.g. `48 b8` will be `mov r, imm64` (read next 8 bytes) vs `b8` will be `mov r, imm32` (read next 4 bytes). At most one REX prefix per instruction, if multiple, last one wins; REX must come after legacy prefixes and before opcode.
+- Compiler optimizes often, give strict `mov  eax, strict DWORD 1` vs `mov  rax, strict QWORD 1` then you can see the difference in machine code.
+- Writing to `al` modifies only 8 bits, writing to `ax` only 16 bits, rest remain unchanged; writing to `eax` modifies all 64 bites (via zero-extension). Full width writes (4 bytes) better than partial (2/1), even though you can technically do `xor rax, rax; mov al, strict BYTE 1` = `mov eax, 1`.
+- `31 c0` = `xor eax, eax`. So `48 31 c0` = `xor rax, rax`. Incidentally, anything written to `eax` will zero extend to the full register, so both of these are functionally identical on x86-64.
+- Stack operations are all full width (8 bytes).
+- Sign extension, when expanding to 64 bits for instance from 32, preserving the sign bits so value is perserved. `movsx` move with sign extension vs `movzx` move with zero extension.
 
 #### Instructions
 
@@ -93,7 +100,11 @@ ja/jae; jb/jbe    ; >, >=; <, <= (unsigned) above/below
 
 #### Flags
 
-- ZF (zero), SF (sign), CF (carry), OF (overflow)
+- Flags are `single-bit` values stored in a special CPU register `RFLAGS`. They are set automatically by the ALU, used by jmp, set, cmov, etc.
+- `CF` Carry Flag, unsigned overflow. `ja/jae/jb/jbe`
+- `ZF` Zero Flag, is 0? `je/jz/jne/jnz`
+- `SF` Sign Flag, is neg? Copy of most significant bit. `js/jns`
+- `OF` Overflow Flag, signed; compare to unsigned, one less bit. `jl/jg/jle/jge`
 
 ---
 
