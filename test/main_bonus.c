@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* ===== libasm bonus prototypes ===== */
-
 typedef struct s_list {
     void *data;
     struct s_list *next;
@@ -14,8 +12,6 @@ void ft_list_push_front(t_list **begin_list, void *data);
 int ft_list_size(t_list *begin_list);
 void ft_list_sort(t_list **begin_list, int (*cmp)());
 void ft_list_remove_if(t_list **begin_list, void *data_ref, int (*cmp)(), void (*free_fct)(void *));
-
-/* ===== test macros ===== */
 
 #define SEP() puts("--------------------------------------------------")
 #define TEST_OK(desc)                                                                              \
@@ -77,7 +73,10 @@ static void test_atoi_base(void) {
         {"123", "0", 0, "base too short"},
         {"123", "1123", 0, "duplicate in base"},
         {"123", "+0123", 0, "invalid char in base"},
-        {"zzz", "z", 0, "single-char base"},
+        {"0", "012", 0, "zero"},
+        {" -+-2147483648", "0123456789", -2147483648, "min INT"},
+        {" -+-2147483648abc", "0123456789", -2147483648, "trailing non num"},
+        {" -+-2147483648abc", "0123456789", -2147483648, "trailing non num"},
     };
 
     size_t count = sizeof(tests) / sizeof(tests[0]);

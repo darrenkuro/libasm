@@ -17,7 +17,7 @@ ft_list_push_front:    ; rdi = begin_list, rsi = data
 	test rax, rax
 	jz   .fail         ; malloc failed
 
-	pop  [rax]         ; restore data to node->data
+	pop  QWORD [rax]   ; restore data to node->data
     pop  rdi
 
     mov  rdx, [rdi]
