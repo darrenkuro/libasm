@@ -9,10 +9,12 @@ ft_strdup:
 	push rdi      ; save *s
 	call ft_strlen; rax = strlen(s)
 	add  rax, 1   ; +1 for null terminator
+
 	mov  rdi, rax ; rdi = size
 	call malloc wrt ..plt
-	test rax, rax ; malloc returned null?
+	test rax, rax ; malloc null?
 	jz   .fail
+
 	mov  rdi, rax ; dest = allocated buffer
 	pop  rsi      ; src = original str
 	call ft_strcpy
@@ -20,5 +22,5 @@ ft_strdup:
 
 .fail:
 	pop rdi       ; restore saved argument
-	xor rax, rax  ; return 0 (null)
+	xor eax, eax  ; return 0 (null)
 	ret

@@ -43,7 +43,7 @@ Libasm is a small library written entirely in assembly, re-implementing a subset
 
 #### Registers
 
-- Caller-saved registers: **%rax, %rdi, %rsi, %rdx, %rcx, %rsp, %r8-11**. (The caller must save them before calling another function if it cares about their values.)
+- Caller-saved registers: **%rax, %rdi, %rsi, %rdx, %rcx, %r8-11**. (The caller must save them before calling another function if it cares about their values.)
 - Callee-saved registers: **%rbx, %rbp, %r12-15**. (The callee must save their values on entry and restore them before returning if it wants to use them.)
   | | 64 bit | 32 bit | 16 bit | 8 bit |
   | ----------------------- | ------ | ------ | ------ | ----- |
