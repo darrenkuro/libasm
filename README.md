@@ -106,7 +106,16 @@ ja/jae; jb/jbe    ; >, >=; <, <= (unsigned) above/below
 - `SF` Sign Flag, is neg? Copy of most significant bit. `js/jns`
 - `OF` Overflow Flag, signed; compare to unsigned, one less bit. `jl/jg/jle/jge`
 
----
+### Big Picture
+
+- Compilation process: prepossessing (expand marco, etc.), compiling (to .s), assembling (to .o), linking. Up until assembling, still all source files; .o is the first into structured object file where it's categorized as machine code, .o, .so/.dylib, .a or executable are are some sort of object file. Source files describe behavior, object files describe bytes and meaning, linkers assign address, loaders assign memory.
+- When you compile code, you get a structured binary file with metadata describing where everything lives. That strcuture is called an `object file format`, of which `ELF` (linux/BSD) and `Mach-O` (macOS) belong to.
+- An object file generally has a header indicating what kind of file it is; a section table indicating where each section starts and ends, and what it's for, and section data. Classical sections include `.text` (`__TEXT/__text`), `.data/.rodata` (`__DATA/__data/__TEXT/__cstring`),`.bss`, `.symtab`, `.rel.*/.rela.*`, etc.
+- Relocatable object files always have headers, section tables, and sections. Executables and shared libraries always have headers and segments; sections may or may not be present.
+- Sections are used by compiler, assembler, linker. Segments are used by loader and kernel. Sections are for building while segements are for running.
+- A file header idenfities the format, architecture (x86-64, ARM64, etc.), endianness, ABI info; without this, nothing can read the file.
+- The section table is just an array of structs, stating name, file offset (start), size, flags (executable? writable?), etc.
+- ***
 
 ## 📄 License
 
