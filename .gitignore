@@ -59,3 +59,6 @@ result/
 
 # Build
 test-*
+
+# Temporary dir
+temp/

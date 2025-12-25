@@ -80,8 +80,6 @@ mov  [rsp], rax   ; *rsp = rax
 
 lea  rax, [rdi+8] ; rax = rdi + 8, load addr, does not touch memory
 
-leave             ; = mov rsp, rbp, pop rbp
-
 add  rax, 1       ; preferred over inc/dec! (It update CF)
 sub  rsp, 16
 imul rax, rdi     ; rax *= rdi
@@ -95,6 +93,11 @@ jnz  label        ; = jne (not equal, not zero), !ZF
 js   label        ; if negative, SF; vs. jns (if not neg)
 jg/jge; jl/jle    ; >, >=; <, <= (signed) greater/less
 ja/jae; jb/jbe    ; >, >=; <, <= (unsigned) above/below
+
+enter
+leave             ; = mov rsp, rbp, pop rbp
+push
+pop               ;
 
 ```
 
@@ -115,7 +118,7 @@ ja/jae; jb/jbe    ; >, >=; <, <= (unsigned) above/below
 - Sections are used by compiler, assembler, linker. Segments are used by loader and kernel. Sections are for building while segements are for running.
 - A file header idenfities the format, architecture (x86-64, ARM64, etc.), endianness, ABI info; without this, nothing can read the file.
 - The section table is just an array of structs, stating name, file offset (start), size, flags (executable? writable?), etc.
-- ***
+- Directives are instructions to the assembler. (Does not end up translating to machine code)
 
 ## 📄 License
 
