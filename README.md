@@ -19,17 +19,69 @@ Libasm is a small library written entirely in assembly, re-implementing a subset
 
 ## 📦 Features
 
+### Mandatory
+
+| Function | Prototype | Description |
+|---|---|---|
+| `ft_strlen` | `size_t ft_strlen(const char *s)` | String length |
+| `ft_strcpy` | `char *ft_strcpy(char *dest, const char *src)` | String copy |
+| `ft_strcmp` | `int ft_strcmp(const char *s1, const char *s2)` | String compare |
+| `ft_write` | `ssize_t ft_write(int fd, const void *buf, size_t count)` | Write syscall wrapper with errno |
+| `ft_read` | `ssize_t ft_read(int fd, void *buf, size_t count)` | Read syscall wrapper with errno |
+| `ft_strdup` | `char *ft_strdup(const char *s)` | String duplicate (calls malloc) |
+
+### Bonus
+
+| Function | Prototype | Description |
+|---|---|---|
+| `ft_atoi_base` | `int ft_atoi_base(char *str, char *base)` | Atoi with arbitrary base |
+| `ft_list_push_front` | `void ft_list_push_front(t_list **begin_list, void *data)` | Prepend node to linked list |
+| `ft_list_size` | `int ft_list_size(t_list *begin_list)` | Count linked list nodes |
+| `ft_list_sort` | `void ft_list_sort(t_list **begin_list, int (*cmp)())` | Bubble sort linked list |
+| `ft_list_remove_if` | `void ft_list_remove_if(t_list **begin_list, void *data_ref, int (*cmp)(), void (*free_fct)(void *))` | Remove matching nodes |
+
+## 🏗️ Architecture: x86_64 vs ARM64
+
+This project includes dual implementations for both architectures, highlighting the fundamental differences between CISC (x86_64) and RISC (ARM64) assembly.
+
+> **Disclaimer**: The ARM64 (Apple Silicon) implementation was heavily assisted by AI and is included for **educational and demonstrative purposes** to illustrate the architectural differences. The x86_64 (Linux/NASM) implementation is the original hand-written version.
+
+| | x86_64 (Linux) | ARM64 (macOS) |
+|---|---|---|
+| **ISA** | CISC — variable-length instructions | RISC — fixed 4-byte instructions |
+| **Assembler** | NASM (Intel syntax) | Apple `as` (Clang integrated) |
+| **Object format** | ELF | Mach-O |
+| **Syscall mechanism** | `syscall` instruction, number in `eax` | `svc #0x80`, number in `x16` |
+| **Syscall error** | Negative return = `-errno` | Carry flag set, `x0` = errno |
+| **Errno helper** | `__errno_location` | `___error` |
+| **Symbol prefix** | None (`ft_strlen`) | Underscore (`_ft_strlen`) |
+| **Arg registers** | `rdi, rsi, rdx, rcx, r8, r9` | `x0, x1, x2, x3, x4, x5, x6, x7` |
+| **Return value** | `rax` | `x0` |
+| **Callee-saved** | `rbx, rbp, r12-r15` | `x19-x28, x29 (FP), x30 (LR)` |
+| **Stack alignment** | 16-byte (before `call`) | 16-byte (always) |
+| **Link register** | Return addr pushed on stack | `x30` (LR), saved via `stp` |
+| **External calls (PIC)** | `call func wrt ..plt` | `bl _func` |
+| **Comments** | `;` (NASM) | `;` or `//` |
+
 ---
 
 ## 🛠️ Configuration
 
 ### Prerequisites
 
+- **Linux (x86_64)**: `nasm`, `gcc`, `make`
+- **macOS (ARM64)**: Xcode Command Line Tools (`as`, `cc`, `ar`)
+
 ### Installation & Usage
 
-### Examples & Demo
-
-### Development
+```sh
+make          # build libasm.a + libasm_bonus.a
+make test     # build & run mandatory tests
+make test-bonus  # build & run bonus tests
+make clean    # remove object files
+make fclean   # remove everything
+make re       # full rebuild
+```
 
 ---
 

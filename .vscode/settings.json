@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "**/src/arm64/*.s": "arm",
+        "**/src/x86_64/*.s": "asm-intel-x86-generic"
+    }
+}
